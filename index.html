@@ -874,83 +874,44 @@
 
     </script>
 <!-- Etheral Shadows Background Animation -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<div id="background-animation" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: #000000; overflow: hidden;">
+  <canvas id="noise-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></canvas>
+</div>
+
 <script>
-  const canvas = document.createElement('canvas');
-  canvas.style.position = 'fixed';
-  canvas.style.top = '0';
-  canvas.style.left = '0';
-  canvas.style.width = '100%';
-  canvas.style.height = '100%';
-  canvas.style.zIndex = '-9999';
-  canvas.style.pointerEvents = 'none';
-  document.body.appendChild(canvas);
-
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  const canvas = document.getElementById('noise-canvas');
+  const ctx = canvas.getContext('2d');
   
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0x000000, 1);
-  
-  camera.position.z = 50;
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
 
-  // Create canvas texture for noise
-  const noiseCanvas = document.createElement('canvas');
-  noiseCanvas.width = 512;
-  noiseCanvas.height = 512;
-  const ctx = noiseCanvas.getContext('2d');
+  resizeCanvas();
 
-  function generateNoise() {
-    const imageData = ctx.createImageData(noiseCanvas.width, noiseCanvas.height);
+  function drawNoise() {
+    const imageData = ctx.createImageData(canvas.width, canvas.height);
     const data = imageData.data;
     
     for (let i = 0; i < data.length; i += 4) {
-      const noise = Math.random() * 255;
+      const noise = Math.random() * 80;
       data[i] = noise;
       data[i + 1] = noise;
       data[i + 2] = noise;
-      data[i + 3] = Math.random() * 100;
+      data[i + 3] = 255;
     }
     
     ctx.putImageData(imageData, 0, 0);
   }
 
-  generateNoise();
-
-  const texture = new THREE.CanvasTexture(noiseCanvas);
-  texture.repeat.set(2, 2);
-  const geometry = new THREE.PlaneGeometry(window.innerWidth * 2, window.innerHeight * 2);
-  const material = new THREE.MeshBasicMaterial({ map: texture, opacity: 0.2, transparent: true });
-  const plane = new THREE.Mesh(geometry, material);
-  scene.add(plane);
-
-  let time = 0;
-
   function animate() {
+    drawNoise();
     requestAnimationFrame(animate);
-    time += 0.01;
-    
-    // Regenerate noise for animation effect
-    if (Math.floor(time * 5) % 3 === 0) {
-      generateNoise();
-      texture.needsUpdate = true;
-    }
-    
-    plane.rotation.z += 0.00005;
-    plane.position.x = Math.sin(time * 0.1) * 10;
-    plane.position.y = Math.cos(time * 0.1) * 10;
-    
-    renderer.render(scene, camera);
   }
 
   animate();
 
-  window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  });
+  window.addEventListener('resize', resizeCanvas);
 </script>
 </body>
 </html>
