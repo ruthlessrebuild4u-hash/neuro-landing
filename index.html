@@ -387,258 +387,167 @@
             transform: scale(1.02);
         }
 
-        /* QUESTIONNAIRE SECTION */
-        .questionnaire {
-            background-color: var(--primary-black);
-            padding: 80px 40px;
-            text-align: center;
-            border-top: 1px solid var(--dark-gray-3);
-        }
+  <!-- QUESTIONNAIRE SECTION -->
+<section class="questionnaire" id="questionnaire">
+  <div class="section-container questionnaire-container">
+    <h2 class="section-title">SHAPE THE FUTURE</h2>
+    <p class="questionnaire-subtitle">Your input matters. Complete this questionnaire to help us build the health tracking app you actually need.</p>
+    
+    <div id="questionnaire-content">
+      <div class="progress-section">
+        <span class="progress-label" id="progress-label">QUESTION 1 OF 12</span>
+        <span class="progress-percent" id="progress-percent">8% COMPLETE</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 8%;"></div>
+      </div>
+      
+      <form class="questionnaire-form" id="questionnaire-form">
+        <label for="fullName" class="form-label" id="question-label">What is your full name? *</label>
+        <input type="text" id="fullName" name="fullName" class="form-input" placeholder="Enter your name" required>
+        
+        <div class="form-buttons">
+          <button type="button" class="btn-previous" id="btn-previous">PREVIOUS</button>
+          <button type="button" class="btn-next" id="btn-next">NEXT →</button>
+        </div>
+      </form>
+    </div>
 
-        .questionnaire-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
+    <!-- Thank You Screen (Hidden Initially) -->
+    <div id="thank-you-screen" style="display: none; text-align: center; padding: 60px 20px;">
+      <h2 class="section-title" style="margin-bottom: 20px;">Thank You! 🎉</h2>
+      <p class="questionnaire-subtitle" style="font-size: 18px; margin-bottom: 30px;">
+        Thank you for your input, <span id="user-name" style="color: #5b919a;">friend</span>!
+      </p>
+      <p class="questionnaire-subtitle" style="font-size: 16px; margin-bottom: 40px; line-height: 1.6;">
+        We've received your responses and will use them to shape the future of Neuro. Check your email for next steps and exclusive early access updates.
+      </p>
+      <button type="button" class="btn-next" id="home-button" style="padding: 16px 32px; margin: 0 auto; display: block; cursor: pointer;">
+        Back to Home →
+      </button>
+    </div>
+  </div>
+</section>
 
-        .questionnaire .section-title {
-            margin-bottom: 20px;
-            text-align: center;
-        }
+<script>
+  // Questionnaire Data
+  const questions = [
+    { label: "What is your full name? *", inputType: "text", placeholder: "Enter your name", id: "q1" },
+    { label: "What is your email? *", inputType: "email", placeholder: "Enter your email", id: "q2" },
+    { label: "What is your age? *", inputType: "number", placeholder: "Enter your age", id: "q3" },
+    { label: "What are your main fitness goals? *", inputType: "text", placeholder: "e.g., Build muscle, lose weight, improve endurance", id: "q4" },
+    { label: "How many days per week can you exercise? *", inputType: "number", placeholder: "e.g., 3", id: "q5" },
+    { label: "What is your current experience level? *", inputType: "select", options: ["Beginner", "Intermediate", "Advanced"], id: "q6" },
+    { label: "What is your biggest challenge with fitness apps? *", inputType: "text", placeholder: "e.g., Lack of motivation, rigid plans", id: "q7" },
+    { label: "Do you track your nutrition? *", inputType: "select", options: ["Yes", "No", "Sometimes"], id: "q8" },
+    { label: "What features are most important to you? *", inputType: "text", placeholder: "e.g., AI personalization, community support", id: "q9" },
+    { label: "How much would you pay per month for Neuro? *", inputType: "text", placeholder: "e.g., $10, $15, $20", id: "q10" },
+    { label: "Would you recommend Neuro to a friend? *", inputType: "select", options: ["Definitely", "Probably", "Maybe", "No"], id: "q11" },
+    { label: "Any additional feedback or suggestions?", inputType: "text", placeholder: "Optional feedback", id: "q12" }
+  ];
 
-        .questionnaire-subtitle {
-            font-size: 16px;
-            color: var(--primary-white);
-            margin-bottom: 60px;
-            line-height: 1.6;
-        }
+  let currentQuestion = 0;
+  const answers = {};
 
-        .progress-section {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: var(--secondary-gray);
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-        }
+  function updateQuestion() {
+    const question = questions[currentQuestion];
+    const questionLabel = document.getElementById('question-label');
+    const fullNameInput = document.getElementById('fullName');
+    const progressLabel = document.getElementById('progress-label');
+    const progressPercent = document.getElementById('progress-percent');
+    const progressFill = document.getElementById('progress-fill');
+    const btnPrevious = document.getElementById('btn-previous');
 
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background-color: var(--dark-gray-2);
-            border-radius: 2px;
-            overflow: hidden;
-            margin-bottom: 40px;
-        }
+    // Update progress
+    const progress = Math.round(((currentQuestion + 1) / questions.length) * 100);
+    progressLabel.textContent = `QUESTION ${currentQuestion + 1} OF ${questions.length}`;
+    progressPercent.textContent = `${progress}% COMPLETE`;
+    progressFill.style.width = `${progress}%`;
 
-        .progress-fill {
-            background-color: var(--primary-white);
-            height: 100%;
-            transition: width 0.3s;
-        }
+    // Update question
+    questionLabel.textContent = question.label;
+    
+    // Show/hide previous button
+    if (currentQuestion === 0) {
+      btnPrevious.style.display = 'none';
+    } else {
+      btnPrevious.style.display = 'block';
+    }
 
-        .questionnaire-form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+    // Handle different input types
+    if (question.inputType === 'select') {
+      const selectHTML = `
+        <select id="fullName" class="form-input" style="padding: 12px; background: #1A1A1A; color: white; border: 1px solid #333333; border-radius: 8px; font-size: 14px; font-family: Inter;">
+          <option value="">Select an option</option>
+          ${question.options.map(opt => `<option value="${opt}" ${answers[question.id] === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+        </select>
+      `;
+      fullNameInput.parentElement.innerHTML = selectHTML;
+    } else {
+      fullNameInput.type = question.inputType;
+      fullNameInput.placeholder = question.placeholder;
+      fullNameInput.value = answers[question.id] || '';
+    }
 
-        .form-label {
-            font-size: 18px;
-            color: var(--primary-white);
-            text-align: left;
-            margin-bottom: 8px;
-            display: block;
-        }
+    fullNameInput.focus();
+  }
 
-        .form-input {
-            background-color: var(--dark-gray-1);
-            border: 1px solid var(--dark-gray-3);
-            color: var(--primary-white);
-            padding: 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            width: 100%;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
+  function nextQuestion() {
+    const question = questions[currentQuestion];
+    const input = document.getElementById('fullName');
+    
+    if (!input.value.trim()) {
+      alert('Please answer this question');
+      return;
+    }
 
-        .form-input:focus {
-            border-color: var(--accent-teal);
-            outline: none;
-            box-shadow: 0 0 12px rgba(91, 145, 154, 0.3);
-        }
+    answers[question.id] = input.value;
 
-        .form-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 40px;
-        }
+    if (currentQuestion < questions.length - 1) {
+      currentQuestion++;
+      updateQuestion();
+    } else {
+      showThankYou();
+    }
+  }
 
-        .btn-previous {
-            background: none;
-            border: none;
-            color: var(--secondary-gray);
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            flex: 1;
-            padding: 12px;
-        }
+  function previousQuestion() {
+    const question = questions[currentQuestion];
+    const input = document.getElementById('fullName');
+    answers[question.id] = input.value;
 
-        .btn-previous:hover {
-            color: var(--primary-white);
-        }
+    if (currentQuestion > 0) {
+      currentQuestion--;
+      updateQuestion();
+    }
+  }
 
-        .btn-next {
-            background-color: var(--primary-black);
-            border: 1px solid var(--primary-white);
-            color: var(--primary-white);
-            padding: 12px 24px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: 0.2s;
-            flex: 1;
-            font-weight: bold;
-        }
+  function showThankYou() {
+    const userName = answers.q1 || 'friend';
+    document.getElementById('user-name').textContent = userName;
+    document.getElementById('questionnaire-content').style.display = 'none';
+    document.getElementById('thank-you-screen').style.display = 'block';
+  }
 
-        .btn-next:hover {
-            background-color: var(--dark-gray-2);
-            transform: scale(1.02);
-        }
+  // Event listeners
+  document.getElementById('btn-next').addEventListener('click', nextQuestion);
+  document.getElementById('btn-previous').addEventListener('click', previousQuestion);
+  document.getElementById('home-button').addEventListener('click', function() {
+    window.scrollTo(0, 0);
+  });
 
-        /* RESPONSIVE DESIGN */
-        /* Tablet (768px and below) */
-        @media (max-width: 768px) {
+  // Allow Enter key to submit
+  document.addEventListener('keypress', (e) => {
+    const questionnaireContent = document.getElementById('questionnaire-content');
+    if (e.key === 'Enter' && questionnaireContent.style.display !== 'none') {
+      e.preventDefault();
+      nextQuestion();
+    }
+  });
 
-            /* Header */
-            header {
-                padding: 16px 20px;
-            }
-
-            .logo {
-                font-size: 20px;
-            }
-
-            .nav-links {
-                gap: 20px;
-            }
-
-            .nav-links a {
-                font-size: 12px;
-            }
-
-            /* Hero */
-            .hero {
-                padding: 40px 20px;
-                /* Reduced specific padding on mobile */
-            }
-
-            .hero-title {
-                font-size: 80px;
-            }
-
-            .section-title {
-                font-size: 36px;
-            }
-
-            .phases,
-            .clarity,
-            .questionnaire {
-                padding: 60px 20px;
-            }
-
-            .phases-grid,
-            .pillars-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        /* Mobile (480px and below) */
-        @media (max-width: 480px) {
-            .hero-title {
-                font-size: 48px;
-                /** Adjusted as per prompt */
-            }
-
-            .section-title {
-                font-size: 28px;
-            }
-
-            .timer-number {
-                font-size: 48px;
-            }
-
-            .hero-subtitle {
-                font-size: 16px;
-            }
-
-            .cta-box {
-                flex-direction: column;
-                gap: 20px;
-                align-items: flex-start;
-            }
-
-            .cta-text {
-                width: 100%;
-            }
-
-            .cta-button {
-                width: 100%;
-                text-align: left;
-            }
-
-            /* Grids -> Single Column */
-            .phases-grid,
-            .pillars-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .phase-title {
-                font-size: 18px;
-            }
-
-            .phase-subtitle {
-                font-size: 11px;
-            }
-
-            .phase-description,
-            .pillar-description {
-                font-size: 13px;
-            }
-
-            .pillar {
-                padding: 20px;
-            }
-
-            .pillar-title {
-                font-size: 14px;
-            }
-
-            .questionnaire-subtitle {
-                font-size: 14px;
-            }
-
-            .form-input {
-                padding: 12px;
-            }
-
-            .form-buttons {
-                flex-direction: column;
-            }
-
-            .btn-previous,
-            .btn-next {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-
-<body>
+  // Initialize
+  updateQuestion();
+</script>
     
     <!-- HEADER -->
     <header>
